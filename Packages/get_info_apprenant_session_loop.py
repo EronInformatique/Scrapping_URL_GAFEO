@@ -55,22 +55,36 @@ def get_info_apprenant_session_loop(dic_dataframe,datasheet,path_directory,start
         element_title_formation_list = WebDriverWait(browser,time_out).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"coursetitle")))
         list_title_formation = [ elem.text for elem in element_title_formation_list]
         tuple_title_chosen = process.extractOne(titre_datasheet, list_title_formation, scorer=fuzz.token_sort_ratio)
+        score_similarity_text=[]
+        for i,elem in enumerate(element_title_formation_list):
+            titre_html_gafeo = elem.text
+            score_similarity_text.append(fuzz.token_set_ratio(titre_datasheet,titre_html_gafeo))
+        
+        max_score = max(score_similarity_text)
+        max_index = score_similarity_text.index(max_score)
+        
         for i,elem in enumerate(element_title_formation_list):
             titre_html_gafeo = elem.text
             if titre_html_gafeo.lower().find("old") ==0:
                 continue
-            score_similarity_text= fuzz.token_set_ratio(titre_datasheet,titre_html_gafeo)
-            print(score_similarity_text)
+            # score_similarity_text= fuzz.token_set_ratio(titre_datasheet,titre_html_gafeo)
+            # print(score_similarity_text)
             if len(element_title_formation_list)==1:
                 formation_to_select =  elem
-            elif score_similarity_text > 90:
+                break
+            elif "v3" in titre_html_gafeo:
                 formation_to_select =  elem
-            elif "v2" in titre_html_gafeo or "v3":
+                break
+            elif "v2" in titre_html_gafeo:
                 formation_to_select =  elem
             elif tuple_title_chosen[0] == titre_html_gafeo:
                 print(tuple_title_chosen[0])
                 print(titre_html_gafeo)
                 formation_to_select =  elem
+                break
+            elif max_score > 90:
+                formation_to_select =  element_title_formation_list[max_index]
+                break
             else:
                 continue
 
