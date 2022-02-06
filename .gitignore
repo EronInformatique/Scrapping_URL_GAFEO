@@ -6,7 +6,7 @@ __pycache__/
 # C extensions
 *.so
 
-
+sheets.googleapis.com-python.json
 *.pkl
 # Distribution / packaging
 .Python
