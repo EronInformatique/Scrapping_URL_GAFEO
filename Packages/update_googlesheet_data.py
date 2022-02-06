@@ -1,5 +1,5 @@
 import pandas as pd
-
+from datetime import datetime
 # gc = pygsheets.authorize(client_secret='/Users/acapai/Documents/Git/Espace-test/Scrapping-With-Python/Scrapping_Url_GAFEO/Oauth_gg/code_secret_client_95743482524-gj2mnoav9naiqt454ggvt71r28r4n3dk.apps.googleusercontent.com.json')
 
 # # Suivi Eron 2022 (derniere version)
@@ -24,5 +24,10 @@ def update_workseet_suivi_eron(wksheet,datasheet):
 #     max_value = max(list_number)
 #     max_index = list_number.index(max_value)
 #     datasheet = pd.read_pickle(os.path.join(path_directory,files_name[max_index])) 
-    df_to_paste = datasheet[['Dernier Accès', 'Pourcentage']].copy()
-    wksheet.set_dataframe(df_to_paste,(7,5),copy_head=False)
+    # current date and time
+    now = datetime.now()
+    time_stamp_str = now.strftime("%d-%b-%Y (%H:%M:%S)")
+    df_to_paste = datasheet[['Course_id','Gafeo_People_id','Dernier Accès', 'Pourcentage']].copy()
+    wksheet.set_dataframe(df_to_paste,(7,6),copy_head=False)
+    wksheet.update_value('N1', "Mise à jour effectué le:")
+    wksheet.update_value('O1', time_stamp_str)

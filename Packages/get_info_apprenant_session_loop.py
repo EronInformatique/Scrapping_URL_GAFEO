@@ -11,10 +11,10 @@ import pandas as pd
 import time
 import os
 from fuzzywuzzy import process,fuzz
+from Packages.update_googlesheet_data import update_workseet_suivi_eron
 
 
-
-def get_info_apprenant_session_loop(dic_dataframe,datasheet,path_directory,start_formation):
+def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directory,start_formation):
     """
     Robot/ automatisation de récupération d'infos sur le suivi des apprenants dans leur formation
     """
@@ -91,6 +91,14 @@ def get_info_apprenant_session_loop(dic_dataframe,datasheet,path_directory,start
         element_title_formation_list = WebDriverWait(formation_to_select,time_out).until(EC.presence_of_element_located((By.XPATH,"..")))
         parent_element_title_formation_list = WebDriverWait(element_title_formation_list,time_out).until(EC.presence_of_element_located((By.XPATH,"..")))
         image_link = WebDriverWait(parent_element_title_formation_list,time_out).until(EC.presence_of_element_located((By.CLASS_NAME,"hovercoursebox")))
+        url=image_link.get_attribute("href")
+        print('url',url)
+        course_id = url.split("=")[1]
+        print('course_id',course_id)
+        course_id = url.split("=")[1]
+        formation_df_copy["Course_id"]=course_id
+        print(formation_df_copy["Course_id"])
+
         image_link.send_keys(Keys.RETURN)
         # action_link.click()
 
@@ -104,31 +112,37 @@ def get_info_apprenant_session_loop(dic_dataframe,datasheet,path_directory,start
     def page_details_rapport_prefill_list_apprenant(browser,time_out):
         dp_down_list_participant = Select(WebDriverWait(browser,time_out).until(EC.presence_of_element_located((By.CSS_SELECTOR,"select[name='userid']"))))
 
-        list_apprenant= formation_df_copy['Apprenant_Normalize'].tolist()
+        list_apprenant_dpdwn_gafeo=[]
+        list_apprenant_dpdwn_gafeo_option=[]
         for i,element in enumerate(dp_down_list_participant.options):
-            print(element.get_attribute("value"))
-            print(element.get_attribute("text"))
+            list_apprenant_dpdwn_gafeo.append(element.get_attribute("text"))
+            list_apprenant_dpdwn_gafeo_option.append(element.get_attribute("value"))
+
+        list_apprenant= formation_df_copy['Apprenant_Normalize'].tolist()
+        for i,element in enumerate(list_apprenant):
+            # print(element.get_attribute("value"))
+            # print(element.get_attribute("text"))
             # element_normalize=re.sub(r'[^a-zA-Z0-9]','',unidecode.unidecode(element.get_attribute("text")).lower().replace(' ', ''))
-            element_normalize=unidecode.unidecode(element.get_attribute("text")).lower()
-            print("element_normalize:",element_normalize)
-            print("list_apprenant:",list_apprenant)
-            ratios = process.extract(element_normalize,list_apprenant,limit=len(list_apprenant))
+            # element_normalize=unidecode.unidecode(element.get_attribute("text")).lower()
+            print("element_google_sheet_apprenant:",element)
+            print("list_apprenant_gafeo:",list_apprenant_dpdwn_gafeo)
+            ratios = process.extract(element,list_apprenant_dpdwn_gafeo,limit=len(list_apprenant))
             print(ratios)
-            highest = process.extractOne(element_normalize,list_apprenant)
+            highest = process.extractOne(element,list_apprenant_dpdwn_gafeo)
             print("Highest",highest)
-            index= [x for x, y in enumerate(list_apprenant) if y == highest[0]]
+            index= [x for x, y in enumerate(list_apprenant_dpdwn_gafeo) if y == highest[0]]
             if highest[1]>75:
                 print("Ratio",highest[1])
                 print("index",index[0])
-                formation_df_copy.iloc[index[0],formation_df_copy.columns.get_loc("Ratio_Fuzzy")]=highest[1]
-                formation_df_copy.iloc[index[0],formation_df_copy.columns.get_loc("Name_Fuzzy")]=highest[0]
-                formation_df_copy.iloc[index[0],formation_df_copy.columns.get_loc("option_value")]=element.get_attribute("value")
-                formation_df_copy.iloc[index[0],formation_df_copy.columns.get_loc("Apprenant_Gafeo")]=element.get_attribute("text")
+                formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Ratio_Fuzzy")]=highest[1]
+                formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Name_Fuzzy")]=highest[0]
+                formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Gafeo_People_id")]=list_apprenant_dpdwn_gafeo_option[index[0]]
+                formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Apprenant_Gafeo")]=list_apprenant_dpdwn_gafeo[index[0]]
         return 
 
     def get_details_suivi_formations_apprenant(browser,time_out):
         for ind in formation_df_copy.index:
-            value = formation_df_copy["option_value"][ind]
+            value = formation_df_copy["Gafeo_People_id"][ind]
             if formation_df_copy["Apprenant_Gafeo"][ind] !="":
                 lastname=formation_df_copy["Apprenant_Gafeo"][ind].split()[0]
                 firstname=formation_df_copy["Apprenant_Gafeo"][ind].split()[1]
@@ -148,13 +162,16 @@ def get_info_apprenant_session_loop(dic_dataframe,datasheet,path_directory,start
                 info_last_access = WebDriverWait(browser,time_out).until(EC.presence_of_element_located((By.CSS_SELECTOR,"#sample-lastcourseaccess .sample-value")))
                 print("info_last_access",info_last_access.text)
                 formation_df_copy.loc[ind,'Dernier Accès'] = info_last_access.text
-                formation_df_copy.loc[ind,'Pourcentage']=pourcentage_only[0]
+                formation_df_copy.loc[ind,'Pourcentage']=pourcentage_only[0]+" %"
 
     def update_datasheet():
         # print(datasheet.loc[pd_copy.index.values,"Dernier Accès"])
         # print(datasheet.loc[pd_copy.index.values,"Apprenant"])
+        datasheet.loc[formation_df_copy.index.values,"Course_id"] = formation_df_copy.loc[formation_df_copy.index.values,"Course_id"]
+        datasheet.loc[formation_df_copy.index.values,"Gafeo_People_id"] = formation_df_copy.loc[formation_df_copy.index.values,"Gafeo_People_id"]
         datasheet.loc[formation_df_copy.index.values,"Dernier Accès"] = formation_df_copy.loc[formation_df_copy.index.values,"Dernier Accès"]
         datasheet.loc[formation_df_copy.index.values,"Pourcentage"] = formation_df_copy.loc[formation_df_copy.index.values,"Pourcentage"]
+
 
     def save_step_process(nb_time_loop,path_directory):
         datasheet.to_pickle(os.path.join(path_directory,"datasheet_loop_"+str(nb_time_loop)))
@@ -167,12 +184,11 @@ def get_info_apprenant_session_loop(dic_dataframe,datasheet,path_directory,start
     print(formation_key_dic_start)
     error=False
     for formation_table in formation_key_dic_start:
-        print(formation_table)
-        print(dic_dataframe[formation_table]["Formation_name"])
-        formation_df_copy = dic_dataframe[formation_table]# A changer
+        # print(formation_table)
+        # print(dic_dataframe[formation_table]["Formation_name"])
+        formation_df_copy = dic_dataframe[formation_table].copy()# A changer
         formation_df_copy["Ratio_Fuzzy"]=""
         formation_df_copy["Name_Fuzzy"]=""
-        formation_df_copy["option_value"]=""
         # print(formation_key_dic)
         error=False
         try:
@@ -186,10 +202,12 @@ def get_info_apprenant_session_loop(dic_dataframe,datasheet,path_directory,start
         except NoSuchElementException:
             print("There was an error, no such element")
             error=True
-            browser.quit()
         except TimeoutException:
+            print("Time Out - GAFEO is out")
             error=True
-            browser.quit()
+        except Exception as ex:
+                print("Other Exception:",str(ex))
+                error=True
         else:
             print("There were no errors.")
         finally:
@@ -199,10 +217,12 @@ def get_info_apprenant_session_loop(dic_dataframe,datasheet,path_directory,start
                 browser.quit()
             else:
                 update_datasheet()
+                update_workseet_suivi_eron(wksheet,datasheet)
                 nb_time_loop+=1
                 save_step_process(nb_time_loop,path_directory)
                 browser.quit()
                 time.sleep(10)
+        
 
 
     
