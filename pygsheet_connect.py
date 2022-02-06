@@ -1,5 +1,5 @@
 import unidecode
-import re
+import time
 import os
 import pandas as pd
 import pygsheets
@@ -21,6 +21,7 @@ format_sheet=False
 if format_sheet:
     update_layout_worksheet(gc,header_col_num,4,22)
 
+start_time_worksheet = time.perf_counter()
 
 for sheetNumber in range(4,22):
     # print(sheetNumber)
@@ -102,3 +103,7 @@ for sheetNumber in range(4,22):
         update_workseet_suivi_eron(wksheet,updated_datasheet)
     else:
         update_workseet_suivi_eron(wksheet,datasheet)
+
+end_time_wksheet=time.perf_counter()
+duree_total_update=start_time_worksheet-end_time_wksheet
+print("Duree total pour update {number_sheet} Sheet:".format(number_sheet=str(22-4))+str(duree_total_update))
