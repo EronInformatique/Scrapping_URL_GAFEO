@@ -5,6 +5,8 @@ import pandas as pd
 import pygsheets
 from Packages.get_info_apprenant_session_loop import get_info_apprenant_session_loop
 from Packages.update_googlesheet_data import update_workseet_suivi_eron
+from Packages.update_layout_worksheet import update_layout_worksheet
+
 gc = pygsheets.authorize(client_secret='/Users/acapai/Documents/Git/Espace-test/Scrapping-With-Python/Scrapping_Url_GAFEO/Oauth_gg/code_secret_client_95743482524-gj2mnoav9naiqt454ggvt71r28r4n3dk.apps.googleusercontent.com.json')
 
 # Suivi Eron 2022 (derniere version)
@@ -13,6 +15,13 @@ gc = pygsheets.authorize(client_secret='/Users/acapai/Documents/Git/Espace-test/
 # DUPLICATA Suivi Eron 2022 (derniere version)
 sh = gc.open_by_key('1Ix4xc_kJPrIBXQL8JmGVz_XNnY4t7AMHdHvmyVlExiA')
 header_col_num=6
+
+format_sheet=False
+#Format all sheet if different
+if format_sheet:
+    update_layout_worksheet(gc,header_col_num,4,22)
+
+
 for sheetNumber in range(4,22):
     # print(sheetNumber)
     wksheet = sh[sheetNumber]
@@ -73,7 +82,7 @@ for sheetNumber in range(4,22):
         formation_unique= datasheet.Formation.unique().tolist()
 
     else:
-        files_name = os.listdir(path_directory)
+        files_name =[f for f in os.listdir(path_directory) if not f.startswith('.')] 
         list_number = [ int(f.split("_")[-1]) for f in files_name if "DS_Store" not in f]
         max_value = max(list_number)
         max_index = list_number.index(max_value)

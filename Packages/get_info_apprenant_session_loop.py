@@ -214,7 +214,8 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
             print("Process completed.")
             if error:
                 time.sleep(5)
-                browser.quit()
+                if 'browser' in globals():
+                    browser.quit()
             else:
                 update_datasheet()
                 update_workseet_suivi_eron(wksheet,datasheet)
