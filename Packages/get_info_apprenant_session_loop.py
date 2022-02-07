@@ -11,7 +11,7 @@ import pandas as pd
 import time
 import os
 from fuzzywuzzy import process,fuzz
-from Packages.update_googlesheet_data import update_workseet_suivi_eron
+import update_googlesheet_data as up_wk
 
 
 def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directory,start_formation):
@@ -51,6 +51,22 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
     
     def page_list_formation(browser,time_out):
 
+        # element_nb_module_formation_list = WebDriverWait(browser,time_out).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,".local-my-fp-summary.boxspecialwola")))
+        element_nb_modules_formation_list = WebDriverWait(browser,time_out).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,".local-my-fp-summary div > span:nth-child(1)")))
+        element_nb_heures_formation_list = WebDriverWait(browser,time_out).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,".local-my-fp-summary div > span:nth-child(2)")))
+        
+        nb_modules_list=[]
+        nb_heures_list=[]
+        for elem in element_nb_modules_formation_list:
+            if elem.text !="":
+                nb_modules_list.append(int(elem.text.split()[0])) #if s.isdigit()
+
+        for elem in element_nb_heures_formation_list:
+            if elem.text !="":
+                nb_heures_list.append(int(elem.text.split()[0])) #if s.isdigit()
+        
+        # element_nb_modules_formation_list = WebDriverWait(browser,time_out).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,".local-my-fp-summary > div:first-child > span:nth-child(1)")))
+        # element_nb_modules_formation_list = WebDriverWait(browser,time_out).until(EC.presence_of_all_elements_located((By.XPATH,"//div[@class='local-my-fp-summary boxspecialwola']/div/span")))
         titre_datasheet = formation_df_copy["Formation_name"].iloc[0]
         element_title_formation_list = WebDriverWait(browser,time_out).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"coursetitle")))
         list_title_formation = [ elem.text for elem in element_title_formation_list]
@@ -58,25 +74,38 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
         score_similarity_text=[]
         for i,elem in enumerate(element_title_formation_list):
             titre_html_gafeo = elem.text
+            if titre_html_gafeo.lower().find("old") ==0:
+                titre_html_gafeo="old"
             score_similarity_text.append(fuzz.token_set_ratio(titre_datasheet,titre_html_gafeo))
         
         max_score = max(score_similarity_text)
         max_index = score_similarity_text.index(max_score)
+
+        max_nb_modules = max(nb_modules_list)
+        max_index_nb_modules = nb_modules_list.index(max_nb_modules)
+        
+        max_heures = max(nb_heures_list)
+        max_index_heures = nb_heures_list.index(max_heures)
         
         for i,elem in enumerate(element_title_formation_list):
             titre_html_gafeo = elem.text
-            if titre_html_gafeo.lower().find("old") ==0:
-                continue
-            # score_similarity_text= fuzz.token_set_ratio(titre_datasheet,titre_html_gafeo)
-            # print(score_similarity_text)
             if len(element_title_formation_list)==1:
                 formation_to_select =  elem
                 break
+            elif titre_html_gafeo.lower().find("old") ==0  or nb_modules_list[i] == 0: #nb_heures_list[i] == 0
+                continue
             elif "v3" in titre_html_gafeo:
                 formation_to_select =  elem
                 break
             elif "v2" in titre_html_gafeo:
                 formation_to_select =  elem
+                break
+            # elif nb_heures_list[i] == max_heures:
+            #     formation_to_select =  elem
+            #     break
+            elif nb_modules_list[i] == max_nb_modules:
+                formation_to_select =  elem
+                break
             elif tuple_title_chosen[0] == titre_html_gafeo:
                 print(tuple_title_chosen[0])
                 print(titre_html_gafeo)
@@ -218,7 +247,7 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
                     browser.quit()
             else:
                 update_datasheet()
-                update_workseet_suivi_eron(wksheet,datasheet)
+                up_wk.update_workseet_suivi_eron(wksheet,datasheet)
                 nb_time_loop+=1
                 save_step_process(nb_time_loop,path_directory)
                 browser.quit()
