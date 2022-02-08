@@ -1,3 +1,4 @@
+from black import wrap_stream_for_windows
 import unidecode
 import re
 from selenium import webdriver
@@ -143,9 +144,11 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
 
         list_apprenant_dpdwn_gafeo=[]
         list_apprenant_dpdwn_gafeo_option=[]
+        list_apprenant_dpdwn_gafeo_normalize=[]
         for i,element in enumerate(dp_down_list_participant.options):
             list_apprenant_dpdwn_gafeo.append(element.get_attribute("text"))
             list_apprenant_dpdwn_gafeo_option.append(element.get_attribute("value"))
+            list_apprenant_dpdwn_gafeo_normalize.append(unidecode.unidecode(element.get_attribute("text")).lower())
 
         list_apprenant= formation_df_copy['Apprenant_Normalize'].tolist()
         for i,element in enumerate(list_apprenant):
@@ -155,18 +158,25 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
             # element_normalize=unidecode.unidecode(element.get_attribute("text")).lower()
             print("element_google_sheet_apprenant:",element)
             print("list_apprenant_gafeo:",list_apprenant_dpdwn_gafeo)
-            ratios = process.extract(element,list_apprenant_dpdwn_gafeo,limit=len(list_apprenant))
+            # w_ratio=[fuzz.WRatio(element,appr) for index,appr in enumerate(list_apprenant_dpdwn_gafeo_normalize)]
+            # w_ratio_idx_appr=[(index,appr) for index,appr in enumerate(list_apprenant_dpdwn_gafeo_normalize)]
+            # sup_80 =[ i for i in w_ratio if i >=80]
+
+            ratios = process.extract(element,list_apprenant_dpdwn_gafeo_normalize,limit=len(list_apprenant),scorer=fuzz.ratio)
             print(ratios)
-            highest = process.extractOne(element,list_apprenant_dpdwn_gafeo)
+            ratios_bis = process.extract(element,list_apprenant_dpdwn_gafeo_normalize,limit=len(list_apprenant),scorer=fuzz.ratio)
+            print(ratios_bis)
+            highest = process.extractOne(element,list_apprenant_dpdwn_gafeo_normalize,scorer=fuzz.ratio)
             print("Highest",highest)
-            index= [x for x, y in enumerate(list_apprenant_dpdwn_gafeo) if y == highest[0]]
-            if highest[1]>75:
-                print("Ratio",highest[1])
-                print("index",index[0])
-                formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Ratio_Fuzzy")]=highest[1]
-                formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Name_Fuzzy")]=highest[0]
-                formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Gafeo_People_id")]=list_apprenant_dpdwn_gafeo_option[index[0]]
-                formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Apprenant_Gafeo")]=list_apprenant_dpdwn_gafeo[index[0]]
+            index= [x for x, y in enumerate(list_apprenant_dpdwn_gafeo_normalize) if y == highest[0]]
+            if highest[1]<75:
+                print("WARNING Index fuzzy ratio < 75:"+"\nNom CRM Google Sheet :"+element+"\nNom Apprenant GAFEO :"+str(list_apprenant_dpdwn_gafeo[index[0]])+"\nRatio:"+str(highest[1]))
+            print("Ratio",highest[1])
+            print("index",index[0])
+            formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Ratio_Fuzzy")]=highest[1]
+            formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Name_Fuzzy")]=highest[0]
+            formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Gafeo_People_id")]=list_apprenant_dpdwn_gafeo_option[index[0]]
+            formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Apprenant_Gafeo")]=list_apprenant_dpdwn_gafeo[index[0]]
         return 
 
     def get_details_suivi_formations_apprenant(browser,time_out):

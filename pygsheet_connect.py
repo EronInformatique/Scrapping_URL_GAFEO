@@ -2,6 +2,7 @@ import unidecode
 import time
 import os
 import sys
+import re
 sys.path.append('/Users/acapai/Documents/Git/Espace-test/Scrapping-With-Python/Scrapping_Url_GAFEO/Packages')
 import pandas as pd
 import pygsheets
@@ -12,22 +13,22 @@ from Packages.update_layout_worksheet import update_layout_worksheet
 
 
 gc = pygsheets.authorize(client_secret='/Users/acapai/Documents/Git/Espace-test/Scrapping-With-Python/Scrapping_Url_GAFEO/Oauth_gg/code_secret_client_95743482524-gj2mnoav9naiqt454ggvt71r28r4n3dk.apps.googleusercontent.com.json')
-
+sh = gc.open_by_key('1Ix4xc_kJPrIBXQL8JmGVz_XNnY4t7AMHdHvmyVlExiA')
 # Suivi Eron 2022 (derniere version)
 #sh = gc.open_by_key('13VqSH8KjAzB3-mroVhtUJjXgO2Gs31UtpqdehiLMyRs')
 
-# DUPLICATA Suivi Eron 2022 (derniere version)
-sh = gc.open_by_key('1Ix4xc_kJPrIBXQL8JmGVz_XNnY4t7AMHdHvmyVlExiA')
 header_col_num=6
 
 format_sheet=False
 #Format all sheet if different
 if format_sheet:
-    update_layout_worksheet(gc,header_col_num,4,22)
+    update_layout_worksheet(gc,sh,header_col_num,4,22)
 
 start_time_worksheet = time.perf_counter()
 
-for sheetNumber in range(4,22):
+# for sheetNumber in range(4,22):
+# DUPLICATA Suivi Eron 2022 (derniere version)
+for sheetNumber in [21]:
     # print(sheetNumber)
     wksheet = sh[sheetNumber]
 
@@ -82,7 +83,7 @@ for sheetNumber in range(4,22):
             # print(unidecode.unidecode(row['Apprenant'].lower()))
             # print(re.sub(r'[^a-zA-Z0-9]','',unidecode.unidecode(row['Apprenant'].lower().replace(' ', ''))))
             # row['Apprenant_Normalize']= re.sub(r'[^a-zA-Z0-9]','',unidecode.unidecode(row['Apprenant']).lower().replace(' ', ''))
-            row['Apprenant_Normalize']= unidecode.unidecode(row['Apprenant']).lower()
+            row['Apprenant_Normalize']= re.sub(r'[^a-zA-Z0-9]','',unidecode.unidecode(row['Apprenant']).lower())
         
         formation_unique= datasheet.Formation.unique().tolist()
 
@@ -110,4 +111,4 @@ for sheetNumber in range(4,22):
 
 end_time_wksheet=time.perf_counter()
 duree_total_update=end_time_wksheet-start_time_worksheet
-print("Duree total pour update {number_sheet} Sheet:".format(number_sheet=str(22-4))+str(duree_total_update))
+print("Duree total pour update {number_sheet} Sheet:".format(number_sheet=str(22-4))+str(duree_total_update)+'sec')
