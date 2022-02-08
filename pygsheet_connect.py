@@ -109,5 +109,5 @@ for sheetNumber in range(4,22):
         update_workseet_suivi_eron(wksheet,datasheet)
 
 end_time_wksheet=time.perf_counter()
-duree_total_update=start_time_worksheet-end_time_wksheet
+duree_total_update=end_time_wksheet-start_time_worksheet
 print("Duree total pour update {number_sheet} Sheet:".format(number_sheet=str(22-4))+str(duree_total_update))

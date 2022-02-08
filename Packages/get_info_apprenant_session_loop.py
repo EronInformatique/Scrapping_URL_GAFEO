@@ -94,10 +94,10 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
                 break
             elif titre_html_gafeo.lower().find("old") ==0  or nb_modules_list[i] == 0: #nb_heures_list[i] == 0
                 continue
-            elif "v3" in titre_html_gafeo:
+            elif "v3" in titre_html_gafeo and nb_modules_list[i] == max_nb_modules :
                 formation_to_select =  elem
                 break
-            elif "v2" in titre_html_gafeo:
+            elif "v2" in titre_html_gafeo and nb_modules_list[i] == max_nb_modules:
                 formation_to_select =  elem
                 break
             # elif nb_heures_list[i] == max_heures:
@@ -106,14 +106,14 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
             elif nb_modules_list[i] == max_nb_modules:
                 formation_to_select =  elem
                 break
-            elif tuple_title_chosen[0] == titre_html_gafeo:
-                print(tuple_title_chosen[0])
-                print(titre_html_gafeo)
-                formation_to_select =  elem
-                break
-            elif max_score > 90:
-                formation_to_select =  element_title_formation_list[max_index]
-                break
+            # elif tuple_title_chosen[0] == titre_html_gafeo:
+            #     print(tuple_title_chosen[0])
+            #     print(titre_html_gafeo)
+            #     formation_to_select =  elem
+            #     break
+            # elif max_score > 90:
+            #     formation_to_select =  element_title_formation_list[max_index]
+            #     break
             else:
                 continue
 

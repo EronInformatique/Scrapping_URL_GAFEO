@@ -8,6 +8,7 @@ __pycache__/
 
 *.DS_Store
 Oauth_gg/
+data/
 sheets.googleapis.com-python.json
 *.pkl
 # Distribution / packaging
