@@ -28,13 +28,15 @@ start_time_worksheet = time.perf_counter()
 
 # for sheetNumber in range(4,22):
 # DUPLICATA Suivi Eron 2022 (derniere version)
-for sheetNumber in [21]:
+for sheetNumber in [4]:
     # print(sheetNumber)
     wksheet = sh[sheetNumber]
 
     list_header=wksheet.get_row(header_col_num)
     index_col_formation = [index+1 for index,elem in enumerate(list_header) if elem == "Thématiques" ][0]
     index_col_apprenant = [index+1 for index,elem in enumerate(list_header) if elem == "Nom Prénom" ][0]
+    index_col_course_id = [index+1 for index,elem in enumerate(list_header) if elem == "Cours_ID_Static" ][0]
+    # index_col_stag_id = [index+1 for index,elem in enumerate(list_header) if elem == "Apprenant_GAFEO_ID" ][0]
     col_formation_raw = wksheet.get_col(index_col_formation)
 
     # print(col_name_apprenant)
@@ -51,6 +53,13 @@ for sheetNumber in [21]:
 
     if len(os.listdir(path_directory) ) == 0 or  (len(os.listdir(path_directory) ) == 1 and ".DS_Store" in os.listdir(path_directory)):
         max_value=0
+
+        col_name_course_id = wksheet.get_col(index_col_course_id)
+        col_course_id = [string for string in col_name_course_id if string ]
+        
+        # col_name_stag_id  = wksheet.get_col(index_col_stag_id)
+        # col_stag_id = [string for string in col_name_stag_id if string ]
+
         col_name_apprenant = wksheet.get_col(index_col_apprenant)
         col_apprenant = [string for string in col_name_apprenant if string ]
 
@@ -67,10 +76,10 @@ for sheetNumber in [21]:
         # print(col_formation)
         # print(col_formation_name)
 
-
-        datasheet = pd.DataFrame(list(zip(col_formation[2:],col_formation_name[2:],col_apprenant[2:])),columns=['Formation','Formation_name','Apprenant'])
-        datasheet["Course_id"]=""
-        datasheet["Gafeo_People_id"]=""
+        l = [""] * len(col_formation[2:])
+        datasheet = pd.DataFrame(list(zip(col_course_id[1:],l,col_formation[2:],col_formation_name[2:],col_apprenant[2:])),columns=['Cours_ID_Static','Apprenant_GAFEO_ID','Formation','Formation_name','Apprenant'])
+        # datasheet["Course_id"]=""
+        # datasheet["Gafeo_People_id"]=""
         datasheet['Dernier Accès'] = ''
         datasheet['Pourcentage']=''
         datasheet['Apprenant_Normalize']=''

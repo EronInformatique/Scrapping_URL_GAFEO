@@ -20,7 +20,7 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
     Robot/ automatisation de récupération d'infos sur le suivi des apprenants dans leur formation
     """
 
-    def initialize_browser_pagelogin(time_out):
+    def initialize_browser_pagelogin(time_out,url,params):
         if os.path.exists("/Applications/Internet/Google Chrome.app/Contents/MacOS/Google Chrome"):
                 path_google_chrome="/Applications/Internet/Google Chrome.app/Contents/MacOS/Google Chrome"
         else:
@@ -38,7 +38,8 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
         id="andria.c@eronservice.fr"
         psswd="Andria-2021!"
         browser = webdriver.Chrome(options=options,executable_path=PATH)
-        browser.get("https://www.gafeo.fr/my/")
+        # browser.get("https://www.gafeo.fr/my/")
+        browser.get(url+params)
         browser.find_element(By.ID,'username').send_keys(id)
         browser.find_element(By.ID,'password').send_keys(psswd)
         browser.find_element(By.CSS_SELECTOR,"button.btn-primary").click()
@@ -175,13 +176,13 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
             print("index",index[0])
             formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Ratio_Fuzzy")]=highest[1]
             formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Name_Fuzzy")]=highest[0]
-            formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Gafeo_People_id")]=list_apprenant_dpdwn_gafeo_option[index[0]]
+            formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Apprenant_GAFEO_ID")]=list_apprenant_dpdwn_gafeo_option[index[0]]
             formation_df_copy.iloc[i,formation_df_copy.columns.get_loc("Apprenant_Gafeo")]=list_apprenant_dpdwn_gafeo[index[0]]
         return 
 
     def get_details_suivi_formations_apprenant(browser,time_out):
         for ind in formation_df_copy.index:
-            value = formation_df_copy["Gafeo_People_id"][ind]
+            value = formation_df_copy["Apprenant_GAFEO_ID"][ind]
             if formation_df_copy["Apprenant_Gafeo"][ind] !="":
                 lastname=formation_df_copy["Apprenant_Gafeo"][ind].split()[0]
                 firstname=formation_df_copy["Apprenant_Gafeo"][ind].split()[1]
@@ -193,21 +194,56 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
                 opt_name = WebDriverWait(browser,time_out).until(EC.presence_of_element_located((By.CSS_SELECTOR,"input[name='go_btn']")))
                 opt_name.send_keys(Keys.RETURN)
                 WebDriverWait(browser,time_out).until(EC.text_to_be_present_in_element((By.CSS_SELECTOR,".userinfobox h1"),lastname))
-                info_pourcentage_list = WebDriverWait(browser,time_out).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,".mandatory-items div")))
-                info_pourcentage_text = info_pourcentage_list[2].text
-                pourcentage_only=re.findall(r"^.*?\([^\d]*(\d+)[^\d]*\).*$",info_pourcentage_text)
-                print("%:",pourcentage_only[0])
+                # info_pourcentage_list = WebDriverWait(browser,time_out).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,".mandatory-items div")))
+                # info_pourcentage_text = info_pourcentage_list[2].text
+                # pourcentage_only=re.findall(r"^.*?\([^\d]*(\d+)[^\d]*\).*$",info_pourcentage_text)
+                # print("%:",pourcentage_only[0])
 
                 info_last_access = WebDriverWait(browser,time_out).until(EC.presence_of_element_located((By.CSS_SELECTOR,"#sample-lastcourseaccess .sample-value")))
                 print("info_last_access",info_last_access.text)
                 formation_df_copy.loc[ind,'Dernier Accès'] = info_last_access.text
-                formation_df_copy.loc[ind,'Pourcentage']=pourcentage_only[0]+" %"
+                # formation_df_copy.loc[ind,'Pourcentage']=pourcentage_only[0]+" %"
+
+    def get_percentage_formations_apprenant(browser,time_out):
+        for ind in formation_df_copy.index:
+            id_user = formation_df_copy["Apprenant_GAFEO_ID"][ind]
+            id_course = formation_df_copy["Cours_ID_Static"].iloc[0]
+            course_ref = formation_df_copy["Formation"].iloc[0]
+            if id_user !='':
+                browser.get('https://www.gafeo.fr/report/learningtimecheck/index.php?itemid='+id_user+'&view=user&id='+id_course)
+                #to refresh the browser
+                # browser.refresh()
+                WebDriverWait(browser, time_out).until(EC.presence_of_all_elements_located((By.TAG_NAME,'td')))
+                # identifying the from row2 having <td> tag
+                # rwdata = browser.find_elements_by_xpath("//table/tbody/tr[2]/td")
+                try:
+                    table_id =WebDriverWait(browser,time_out).until(EC.presence_of_element_located((By.CLASS_NAME, 'generaltable')))
+                    #time.sleep(10)
+                    rows = table_id.find_elements(By.TAG_NAME, "tr")
+                    # rows = WebDriverWait(table_id,time_out).until(EC.presence_of_element_located((By.TAG_NAME, "tr")))
+                    print("Rows length")
+                    print(len(rows))
+                    for row in rows[1:-1]:
+                        # Get the columns
+                        print("cols length")
+                        print(len(row.find_elements(By.TAG_NAME, "td")))
+                        # cols = row.find_elements(By.TAG_NAME, "td")
+                        if row.find_elements(By.TAG_NAME, "td")[1].text == course_ref:
+                            pourcentage_only=re.sub("[^0-9]", "",row.find_elements(By.TAG_NAME, "td")[3].text)
+                            formation_df_copy.loc[ind,'Pourcentage']=pourcentage_only+" %"
+                            break
+                        else:
+                            continue
+                        # col_name = row.find_elements(By.TAG_NAME, "td")[1] # This is the Name column                print "col_name.text = "
+                except NoSuchElementException as e:
+                    return False
+
 
     def update_datasheet():
         # print(datasheet.loc[pd_copy.index.values,"Dernier Accès"])
         # print(datasheet.loc[pd_copy.index.values,"Apprenant"])
-        datasheet.loc[formation_df_copy.index.values,"Course_id"] = formation_df_copy.loc[formation_df_copy.index.values,"Course_id"]
-        datasheet.loc[formation_df_copy.index.values,"Gafeo_People_id"] = formation_df_copy.loc[formation_df_copy.index.values,"Gafeo_People_id"]
+        # datasheet.loc[formation_df_copy.index.values,"Course_id"] = formation_df_copy.loc[formation_df_copy.index.values,"Course_id"]
+        datasheet.loc[formation_df_copy.index.values,"Apprenant_GAFEO_ID"] = formation_df_copy.loc[formation_df_copy.index.values,"Apprenant_GAFEO_ID"]
         datasheet.loc[formation_df_copy.index.values,"Dernier Accès"] = formation_df_copy.loc[formation_df_copy.index.values,"Dernier Accès"]
         datasheet.loc[formation_df_copy.index.values,"Pourcentage"] = formation_df_copy.loc[formation_df_copy.index.values,"Pourcentage"]
 
@@ -230,14 +266,17 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
         formation_df_copy["Name_Fuzzy"]=""
         # print(formation_key_dic)
         error=False
+        url = "https://www.gafeo.fr/report/trainingsessions/index.php?id="
+        params = formation_df_copy["Cours_ID_Static"].iloc[0]
         try:
-            browser = initialize_browser_pagelogin(time_out)
-            page_recherche_formation(browser,time_out)
-            page_list_formation(browser,time_out)
-            page_formation_detail(browser,time_out)
-            page_formation_detail_popup(browser,time_out)
+            browser = initialize_browser_pagelogin(time_out,url,params)
+            # page_recherche_formation(browser,time_out)
+            # page_list_formation(browser,time_out)
+            # page_formation_detail(browser,time_out)
+            # page_formation_detail_popup(browser,time_out)
             page_details_rapport_prefill_list_apprenant(browser,time_out)
             get_details_suivi_formations_apprenant(browser,time_out)
+            get_percentage_formations_apprenant(browser,time_out)
         except NoSuchElementException:
             print("There was an error, no such element")
             error=True
@@ -261,7 +300,7 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
                 nb_time_loop+=1
                 save_step_process(nb_time_loop,path_directory)
                 browser.quit()
-                time.sleep(10)
+                time.sleep(5)
         
 
 
