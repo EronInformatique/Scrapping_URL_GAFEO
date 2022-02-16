@@ -18,7 +18,7 @@ sh = gc.open_by_key('1Ix4xc_kJPrIBXQL8JmGVz_XNnY4t7AMHdHvmyVlExiA')
 #sh = gc.open_by_key('13VqSH8KjAzB3-mroVhtUJjXgO2Gs31UtpqdehiLMyRs')
 
 header_col_num=6
-
+nbsheet=0
 format_sheet=False
 #Format all sheet if different
 if format_sheet:
@@ -36,6 +36,7 @@ for sheetNumber in [4]:
     index_col_formation = [index+1 for index,elem in enumerate(list_header) if elem == "Thématiques" ][0]
     index_col_apprenant = [index+1 for index,elem in enumerate(list_header) if elem == "Nom Prénom" ][0]
     index_col_course_id = [index+1 for index,elem in enumerate(list_header) if elem == "Cours_ID_Static" ][0]
+    index_col_statut_crm = [index+1 for index,elem in enumerate(list_header) if elem == "Statut CRM" ][0]
     # index_col_stag_id = [index+1 for index,elem in enumerate(list_header) if elem == "Apprenant_GAFEO_ID" ][0]
     col_formation_raw = wksheet.get_col(index_col_formation)
 
@@ -57,6 +58,9 @@ for sheetNumber in [4]:
         col_name_course_id = wksheet.get_col(index_col_course_id)
         col_course_id = [string for string in col_name_course_id if string ]
         
+        col_name_statut_crm = wksheet.get_col(index_col_statut_crm)
+        col_statut_crm = [string for string in col_name_statut_crm if string ]
+
         # col_name_stag_id  = wksheet.get_col(index_col_stag_id)
         # col_stag_id = [string for string in col_name_stag_id if string ]
 
@@ -77,7 +81,7 @@ for sheetNumber in [4]:
         # print(col_formation_name)
 
         l = [""] * len(col_formation[2:])
-        datasheet = pd.DataFrame(list(zip(col_course_id[1:],l,col_formation[2:],col_formation_name[2:],col_apprenant[2:])),columns=['Cours_ID_Static','Apprenant_GAFEO_ID','Formation','Formation_name','Apprenant'])
+        datasheet = pd.DataFrame(list(zip(col_course_id[1:],l,col_formation[2:],col_formation_name[2:],col_apprenant[2:],col_statut_crm[2:])),columns=['Cours_ID_Static','Apprenant_GAFEO_ID','Formation','Formation_name','Apprenant','Statut CRM'])
         # datasheet["Course_id"]=""
         # datasheet["Gafeo_People_id"]=""
         datasheet['Dernier Accès'] = ''
@@ -118,6 +122,9 @@ for sheetNumber in [4]:
     else:
         update_workseet_suivi_eron(wksheet,datasheet)
 
+    nbsheet+=nbsheet+1
+
+
 end_time_wksheet=time.perf_counter()
 duree_total_update=end_time_wksheet-start_time_worksheet
-print("Duree total pour update {number_sheet} Sheet:".format(number_sheet=str(22-4))+str(duree_total_update)+'sec')
+print("Duree total pour update {number_sheet} Sheet:".format(number_sheet=str(nbsheet))+str(duree_total_update)+'sec')
