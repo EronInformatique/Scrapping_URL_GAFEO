@@ -199,7 +199,7 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
                 firstname=formation_df_copy["Apprenant_Gafeo"][ind].split()[1]
                 print(firstname+" "+lastname)
                 print("value option",value)
-            if value != "" and (statut !="Present" and statut !="Excusé") :
+            if value != "" and statut !="Present" and statut !="Excusé" and statut!="Report" and statut!="Annulé" and statut!="Présent" and statut !="Excuse" and statut !="Annule" :
                 dp_down_list_participant = Select(WebDriverWait(browser,time_out).until(EC.presence_of_element_located((By.CSS_SELECTOR,"select[name='userid']"))))
                 dp_down_list_participant.select_by_value(value)
                 opt_name = WebDriverWait(browser,time_out).until(EC.presence_of_element_located((By.CSS_SELECTOR,"input[name='go_btn']")))
