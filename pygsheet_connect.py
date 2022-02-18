@@ -3,7 +3,6 @@ import time
 import os
 import sys
 import re
-sys.path.append('/Users/acapai/Documents/Git/Espace-test/Scrapping-With-Python/Scrapping_Url_GAFEO/Packages')
 import pandas as pd
 import pygsheets
 from Packages.get_info_apprenant_session_loop import get_info_apprenant_session_loop
@@ -11,7 +10,7 @@ from Packages.update_googlesheet_data import update_workseet_suivi_eron
 from Packages.update_layout_worksheet import update_layout_worksheet
 
 
-
+sys.path.append('/Users/acapai/Documents/Git/Espace-test/Scrapping-With-Python/Scrapping_Url_GAFEO/Packages')
 gc = pygsheets.authorize(client_secret='/Users/acapai/Documents/Git/Espace-test/Scrapping-With-Python/Scrapping_Url_GAFEO/Oauth_gg/code_secret_client_95743482524-gj2mnoav9naiqt454ggvt71r28r4n3dk.apps.googleusercontent.com.json')
 sh = gc.open_by_key('1Ix4xc_kJPrIBXQL8JmGVz_XNnY4t7AMHdHvmyVlExiA')
 # Suivi Eron 2022 (derniere version)
