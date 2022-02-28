@@ -24,16 +24,16 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
         if os.path.exists("/Applications/Internet/Google Chrome.app/Contents/MacOS/Google Chrome"):
                 path_google_chrome="/Applications/Internet/Google Chrome.app/Contents/MacOS/Google Chrome"
         else:
-            path_google_chrome="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+            path_google_chrome="C:\\Program Files\\Google\\Chrome\Application"
         options = Options()
-        options.binary_location = path_google_chrome
+        # options.binary_location = path_google_chrome
         options.add_experimental_option("detach", True)
         # options.add_argument("--headless")
         # options.add_argument("--disable-gpu")
         # options.add_experimental_option('prefs', {'download.default_directory':'/Users/acapai/Downloads/'})
         # options.add_experimental_option('prefs',{"profile.default_content_setting_values.automatic_downloads": 1})
 
-        rel_path="/Applications/chromedriver"
+        rel_path="C:\\Users\\Linda\\Documents\\chromedriver.exe"
         PATH = os.path.abspath(rel_path)
         id="automate"
         psswd="AutomateEron2!!"

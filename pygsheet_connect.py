@@ -1,12 +1,11 @@
-from tkinter import N
-import unidecode
 import time
 import os
 import sys
-sys.path.append('/Users/acapai/Documents/Git/Espace-test/Scrapping-With-Python/Scrapping_Url_GAFEO/Packages')
+sys.path.append('C:\\Users\\Linda\\scrapping_gafeo\\Packages')
 import re
 import pandas as pd
 import pygsheets
+import unidecode
 from Packages.get_info_apprenant_session_loop import get_info_apprenant_session_loop
 from Packages.update_googlesheet_data import update_workseet_suivi_eron
 from Packages.update_layout_worksheet import update_layout_worksheet
@@ -129,7 +128,7 @@ def pygsheet_suivi_eron(sh,header_col_num,nbsheet):
 
 
 if __name__ == "__main__":
-    gc = pygsheets.authorize(client_secret='/Users/acapai/Documents/Git/Espace-test/Scrapping-With-Python/Scrapping_Url_GAFEO/Oauth_gg/code_secret_client_95743482524-gj2mnoav9naiqt454ggvt71r28r4n3dk.apps.googleusercontent.com.json')
+    gc = pygsheets.authorize(client_secret='C:\\Users\\Linda\\scrapping_gafeo\\sheets.googleapis.com-python.json')
     # sh = gc.open_by_key('1Ix4xc_kJPrIBXQL8JmGVz_XNnY4t7AMHdHvmyVlExiA')
     # Suivi Eron 2022 (derniere version)
     sh = gc.open_by_key('13VqSH8KjAzB3-mroVhtUJjXgO2Gs31UtpqdehiLMyRs')
