@@ -131,6 +131,7 @@ if __name__ == "__main__":
     gc = pygsheets.authorize(client_secret='C:\\Users\\Linda\\scrapping_gafeo\\sheets.googleapis.com-python.json')
     # sh = gc.open_by_key('1Ix4xc_kJPrIBXQL8JmGVz_XNnY4t7AMHdHvmyVlExiA')
     # Suivi Eron 2022 (derniere version)
+    gc.set_batch_mode(False)
     sh = gc.open_by_key('13VqSH8KjAzB3-mroVhtUJjXgO2Gs31UtpqdehiLMyRs')
     header_col_num=6
     nbsheet=0
