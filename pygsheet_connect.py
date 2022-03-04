@@ -128,7 +128,7 @@ def pygsheet_suivi_eron(sh,header_col_num,nbsheet):
 
 
 if __name__ == "__main__":
-    gc = pygsheets.authorize(client_secret='C:\Users\Linda\scrapping_gafeo\oauth\code_secret_client_95743482524-gj2mnoav9naiqt454ggvt71r28r4n3dk.apps.googleusercontent.com.json')
+    gc = pygsheets.authorize(client_secret='C:\Users\Linda\scrapping_gafeo\Oauth_gg\code_secret_client_95743482524-gj2mnoav9naiqt454ggvt71r28r4n3dk.apps.googleusercontent.com.json')
     # sh = gc.open_by_key('1Ix4xc_kJPrIBXQL8JmGVz_XNnY4t7AMHdHvmyVlExiA')
     # Suivi Eron 2022 (derniere version)
     gc.set_batch_mode(False)
