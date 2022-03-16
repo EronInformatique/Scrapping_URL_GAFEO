@@ -49,6 +49,12 @@ def pygsheet_suivi_eron(sh,header_col_num,nbsheet):
             pass
 
         if len(os.listdir(path_directory) ) == 0 or  (len(os.listdir(path_directory) ) == 1 and ".DS_Store" in os.listdir(path_directory)):
+            files_saved_notexist = True
+        else:
+            files_saved_notexist = False
+
+
+        if files_saved_notexist:
             max_value=0
 
             col_name_course_id = wksheet.get_col(index_col_course_id)
@@ -131,6 +137,7 @@ if __name__ == "__main__":
     gc = pygsheets.authorize(client_secret='C:\\Users\\Linda\\scrapping_gafeo\\sheets.googleapis.com-python.json')
     # sh = gc.open_by_key('1Ix4xc_kJPrIBXQL8JmGVz_XNnY4t7AMHdHvmyVlExiA')
     # Suivi Eron 2022 (derniere version)
+    files_saved_notexist = True
     gc.set_batch_mode(False)
     sh = gc.open_by_key('13VqSH8KjAzB3-mroVhtUJjXgO2Gs31UtpqdehiLMyRs')
     header_col_num=6
