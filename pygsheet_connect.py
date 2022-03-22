@@ -24,7 +24,7 @@ def pygsheet_suivi_eron(sh,header_col_num,nbsheet):
     if sh[4].title != "(Départ 01/01/2022) INF":
         return
 
-    for sheet_number in range(4,34):
+    for sheet_number in range(16,40):
         # print(sheet_number)
         wksheet = sh[sheet_number]
         
@@ -122,7 +122,8 @@ def pygsheet_suivi_eron(sh,header_col_num,nbsheet):
             updated_datasheet = get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directory,start_formation=max_value)
             update_workseet_suivi_eron(wksheet,updated_datasheet)
         else:
-            update_workseet_suivi_eron(wksheet,datasheet)
+            pass
+           #update_workseet_suivi_eron(wksheet,datasheet)
 
         nbsheet+=nbsheet+1
 
