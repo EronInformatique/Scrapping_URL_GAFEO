@@ -314,7 +314,7 @@ def get_info_apprenant_session_loop(dic_dataframe,wksheet,datasheet,path_directo
                 update_datasheet()
                 up_wk.update_workseet_suivi_eron(wksheet,datasheet)
                 nb_time_loop+=1
-                save_step_process(nb_time_loop,path_directory)
+                # save_step_process(nb_time_loop,path_directory)
                 browser.quit()
                 time.sleep(5)
         
