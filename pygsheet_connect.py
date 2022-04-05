@@ -24,7 +24,7 @@ def pygsheet_suivi_eron(sh,header_col_num,nbsheet):
     if sh[4].title != "(Départ 01/01/2022) INF":
         return
 
-    for sheet_number in range(16,40):
+    for sheet_number in range(16,46):
         # print(sheet_number)
         wksheet = sh[sheet_number]
         
