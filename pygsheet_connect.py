@@ -24,7 +24,7 @@ def pygsheet_suivi_eron(sh,header_col_num,nbsheet):
     if sh[4].title != "(Départ 01/01/2022) INF":
         return
 
-    for sheet_number in range(16,46):
+    for sheet_number in range(44,46):
         # print(sheet_number)
         wksheet = sh[sheet_number]
         
@@ -135,7 +135,7 @@ def pygsheet_suivi_eron(sh,header_col_num,nbsheet):
 
 
 if __name__ == "__main__":
-    gc = pygsheets.authorize(client_secret='C:\\Users\\Linda\\scrapping_gafeo\\sheets.googleapis.com-python.json')
+    gc = pygsheets.authorize(client_secret='C:\\Users\\Linda\\scrapping_gafeo\\code_secret_client_173621592213-0llal3ntmv316usvtboglpb52leq6jcu.apps.googleusercontent.com')
     # sh = gc.open_by_key('1Ix4xc_kJPrIBXQL8JmGVz_XNnY4t7AMHdHvmyVlExiA')
     # Suivi Eron 2022 (derniere version)
     files_saved_notexist = True
